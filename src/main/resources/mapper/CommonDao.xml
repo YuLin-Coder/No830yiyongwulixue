@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dao.CommonDao">
+	<select id="getOption" resultType="String" >
+		SELECT distinct ${column} FROM ${table} 
+			where ${column} is not null and ${column} !=''
+			<if test = "level != null"> 
+			and level=#{level} 
+			</if>
+			<if test = "parent != null"> 
+			and parent=#{parent} 
+			</if>
+	</select>
+
+
+
+	<!--多表联查统计图标-->
+	<select id="chartBoth" resultType="map" parameterType="map">
+		select
+		b.index_name as mc,
+		count(*) as total
+		from ${table1} a left join ${table2} b
+		on a.${column1} = b.code_index
+		where b.dic_code = #{column1}
+		group by ${column1}
+	</select>
+	
+	<select id="getFollowByOption" resultType="map" >
+		SELECT * FROM ${table} where ${column}=#{columnValue}
+	</select>
+	
+	<update id="sh">
+		UPDATE ${table} set sfsh=#{sfsh} where id=#{id}
+	</update>
+	
+	<select id="remindCount" resultType="int" >
+		SELECT count(1) FROM ${table} 
+			where 1=1 
+			<if test = "type == 1 ">
+				<if test = " remindstart != null ">
+				     and ${column} &gt;= #{remindstart}
+				</if>
+				<if test = " remindend != null ">
+				     and ${column} &lt;= #{remindend}
+				</if>
+			</if>
+						<if test = "type == 2 ">
+				<if test = " remindstart != null ">
+				     and ${column} &gt;= str_to_date(#{remindstart},'%Y-%m-%d')
+				</if>
+				<if test = " remindend != null ">
+				     and ${column} &lt;= str_to_date(#{remindend},'%Y-%m-%d')
+				</if>
+			</if>
+							</select>
+	
+	<select id="selectCal" resultType="map" >
+		SELECT sum(${column}) sum,max(${column}) max,min(${column}) min,avg(${column}) avg FROM ${table}
+	</select>
+	
+	<select id="selectGroup" resultType="map" >
+		SELECT ${column} , count(1) total FROM ${table} group by ${column}
+	</select>
+	
+	<select id="selectValue" resultType="map" >
+		SELECT ${xColumn}, sum(${yColumn}) total FROM ${table} group by ${xColumn}
+	</select>
+
+
+
+	<!--
+
+		下面为新添加的
+
+	-->
+
+	<select id="newSelectGroupSum" resultType="map">
+
+		select
+			d.index_name as name,
+			a.${groupColumn} as groupColumn, -- 这一列页面无用,用于排查问题
+			sum(a.${sumColumn}) as value
+		from ${tableName} a
+		LEFT JOIN dictionary d ON a.${groupColumn}=d.code_index where d.dic_code= #{groupColumn}
+		GROUP BY a.${groupColumn}
+	</select>
+
+	<select id="newSelectGroupCount" resultType="map">
+
+		select
+			d.index_name as name,
+			a.${groupColumn} as groupColumn, -- 这一列页面无用,用于排查问题
+			count(*) as value
+		from ${tableName} a
+		LEFT JOIN dictionary d ON a.${groupColumn}=d.code_index where d.dic_code= #{groupColumn}
+		GROUP BY a.${groupColumn}
+	</select>
+
+
+	<select id="newSelectDateGroupSum" resultType="map">
+--
+		select
+			date_format(${groupColumn}, #{dateFormat}) as name,
+			sum(${sumColumn}) as value
+		from ${tableName}
+		group by date_format(${groupColumn}, #{dateFormat});
+
+
+	</select>
+
+	<select id="newSelectDateGroupCount" resultType="map">
+
+		select
+			date_format(${groupColumn}, #{dateFormat}) as name,
+			count(*) as value
+		from ${tableName}
+		group by date_format(${groupColumn}, #{dateFormat});
+	</select>
+
+	<update id="plusCloumNumber">
+		update ${tableName}
+			set ${column} = ${column}+#{number}
+		where
+			id = #{id}
+	</update>
+
+	<update id="reduceCloumNumber">
+		update ${tableName}
+			set ${column} = ${column}-#{number}
+		where
+			id = #{id}
+	</update>
+
+
+	<update id="updateCloumValue">
+		update ${tableName}
+			set #{column} = #{value}
+		where
+			id = #{id}
+	</update>
+
+
+
+
+</mapper>

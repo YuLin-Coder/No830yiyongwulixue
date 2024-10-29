@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.JiaoshiDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.username as username
+        ,a.password as password
+        ,a.jiaoshi_name as jiaoshiName
+        ,a.sex_types as sexTypes
+        ,a.jiaoshi_id_number as jiaoshiIdNumber
+        ,a.jiaoshi_phone as jiaoshiPhone
+        ,a.jiaoshi_photo as jiaoshiPhoto
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.JiaoshiView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM jiaoshi  a
+
+        <where>
+            <if test=" params.username != '' and params.username != null and params.username != 'null' ">
+                and a.username like CONCAT('%',#{params.username},'%')
+            </if>
+            <if test=" params.password != '' and params.password != null and params.password != 'null' ">
+                and a.password like CONCAT('%',#{params.password},'%')
+            </if>
+            <if test=" params.jiaoshiName != '' and params.jiaoshiName != null and params.jiaoshiName != 'null' ">
+                and a.jiaoshi_name like CONCAT('%',#{params.jiaoshiName},'%')
+            </if>
+            <if test="params.sexTypes != null">
+                and a.sex_types = #{params.sexTypes}
+            </if>
+            <if test=" params.jiaoshiIdNumber != '' and params.jiaoshiIdNumber != null and params.jiaoshiIdNumber != 'null' ">
+                and a.jiaoshi_id_number like CONCAT('%',#{params.jiaoshiIdNumber},'%')
+            </if>
+            <if test=" params.jiaoshiPhone != '' and params.jiaoshiPhone != null and params.jiaoshiPhone != 'null' ">
+                and a.jiaoshi_phone like CONCAT('%',#{params.jiaoshiPhone},'%')
+            </if>
+
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>

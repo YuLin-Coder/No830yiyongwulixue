@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ShiyanchengjiDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.shiyanpaike_id as shiyanpaikeId
+        ,a.yonghu_id as yonghuId
+        ,a.chengji_pingfen as chengjiPingfen
+        ,a.chengji_content as chengjiContent
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ShiyanchengjiView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,shiyanpaike.shiyanpaike_name as shiyanpaikeName
+        ,shiyanpaike.shiyanpaike_types as shiyanpaikeTypes
+        ,shiyanpaike.shiyanpaike_time as shiyanpaikeTime
+        ,shiyanpaike.jiaoshi_id as jiaoshiId
+        ,shiyanpaike.banji_types as banjiTypes
+        ,shiyanpaike.shiyanpaike_fenzu as shiyanpaikeFenzu
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.sex_types as sexTypes
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.banji_types as banjiTypes
+
+        FROM shiyanchengji  a
+        left JOIN shiyanpaike shiyanpaike ON a.shiyanpaike_id = shiyanpaike.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.shiyanpaikeId != null">
+                and a.shiyanpaike_id = #{params.shiyanpaikeId}
+            </if>
+            <if test="params.yonghuId != null">
+                and a.yonghu_id = #{params.yonghuId}
+            </if>
+            <if test="params.chengjiPingfenStart != null">
+                <![CDATA[  and a.chengji_pingfen >= #{params.chengjiPingfenStart}   ]]>
+            </if>
+            <if test="params.chengjiPingfenEnd != null">
+                <![CDATA[  and a.chengji_pingfen <= #{params.chengjiPingfenEnd}   ]]>
+            </if>
+            <if test=" params.chengjiContent != '' and params.chengjiContent != null and params.chengjiContent != 'null' ">
+                and a.chengji_content like CONCAT('%',#{params.chengjiContent},'%')
+            </if>
+
+            <if test=" params.shiyanpaikeName != '' and params.shiyanpaikeName != null and params.shiyanpaikeName != 'null' ">
+                and shiyanpaike.shiyanpaike_name like CONCAT('%',#{params.shiyanpaikeName},'%')
+            </if>
+            <if test="params.shiyanpaikeTypes != null">
+                and shiyanpaike.shiyanpaike_types = #{params.shiyanpaikeTypes}
+            </if>
+
+            <if test=" params.shiyanpaikeTimeStart != '' and params.shiyanpaikeTimeStart != null ">
+                <![CDATA[  and DATE_FORMAT(shiyanpaike.shiyanpaike_time, '%Y-%m-%d %H:%T:%s') >=
+                DATE_FORMAT(#{params.shiyanpaikeTimeStart}, '%Y-%m-%d %H:%T:%s')   ]]>
+            </if>
+            <if test=" params.shiyanpaikeTimeEnd != '' and params.shiyanpaikeTimeEnd != null ">
+                <![CDATA[  and DATE_FORMAT(shiyanpaike.shiyanpaike_time, '%Y-%m-%d %H:%T:%s') <=
+                DATE_FORMAT(#{params.shiyanpaikeTimeEnd} , '%Y-%m-%d %H:%T:%s')    ]]>
+            </if>
+            <if test="params.jiaoshiId != null">
+                and shiyanpaike.jiaoshi_id = #{params.jiaoshiId}
+            </if>
+            <if test="params.banjiTypes != null">
+                and shiyanpaike.banji_types = #{params.banjiTypes}
+            </if>
+
+            <if test=" params.shiyanpaikeFenzu != '' and params.shiyanpaikeFenzu != null and params.shiyanpaikeFenzu != 'null' ">
+                and shiyanpaike.shiyanpaike_fenzu like CONCAT('%',#{params.shiyanpaikeFenzu},'%')
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test="params.sexTypes != null">
+                and yonghu.sex_types = #{params.sexTypes}
+            </if>
+
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test="params.banjiTypes != null">
+                and yonghu.banji_types = #{params.banjiTypes}
+            </if>
+
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>

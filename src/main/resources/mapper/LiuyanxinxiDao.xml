@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.LiuyanxinxiDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.note as note
+        ,a.yhnote as yhnote
+        ,a.note_time as noteTime
+        ,a.reply as reply
+        ,a.glreply as glreply
+        ,a.reply_time as replyTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.LiuyanxinxiView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM liuyanxinxi  a
+
+        <where>
+            <if test=" params.note != '' and params.note != null and params.note != 'null' ">
+                and a.note like CONCAT('%',#{params.note},'%')
+            </if>
+            <if test=" params.yhnote != '' and params.yhnote != null and params.yhnote != 'null' ">
+                and a.yhnote like CONCAT('%',#{params.yhnote},'%')
+            </if>
+            <if test=" params.noteTimeStart != '' and params.noteTimeStart != null ">
+                <![CDATA[  and DATE_FORMAT(a.note_time, '%Y-%m-%d %H:%T:%s') >=
+                DATE_FORMAT(#{params.noteTimeStart}, '%Y-%m-%d %H:%T:%s')   ]]>
+            </if>
+            <if test=" params.noteTimeEnd != '' and params.noteTimeEnd != null ">
+                <![CDATA[  and DATE_FORMAT(a.note_time, '%Y-%m-%d %H:%T:%s') <=
+                DATE_FORMAT(#{params.noteTimeEnd} , '%Y-%m-%d %H:%T:%s')    ]]>
+            </if>
+            <if test=" params.reply != '' and params.reply != null and params.reply != 'null' ">
+                and a.reply like CONCAT('%',#{params.reply},'%')
+            </if>
+            <if test=" params.glreply != '' and params.glreply != null and params.glreply != 'null' ">
+                and a.glreply like CONCAT('%',#{params.glreply},'%')
+            </if>
+            <if test=" params.replyTimeStart != '' and params.replyTimeStart != null ">
+                <![CDATA[  and DATE_FORMAT(a.reply_time, '%Y-%m-%d %H:%T:%s') >=
+                DATE_FORMAT(#{params.replyTimeStart}, '%Y-%m-%d %H:%T:%s')   ]]>
+            </if>
+            <if test=" params.replyTimeEnd != '' and params.replyTimeEnd != null ">
+                <![CDATA[  and DATE_FORMAT(a.reply_time, '%Y-%m-%d %H:%T:%s') <=
+                DATE_FORMAT(#{params.replyTimeEnd} , '%Y-%m-%d %H:%T:%s')    ]]>
+            </if>
+
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>

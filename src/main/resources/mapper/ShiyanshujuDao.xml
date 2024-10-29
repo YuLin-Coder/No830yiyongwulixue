@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ShiyanshujuDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.shiyanpaike_id as shiyanpaikeId
+        ,a.shiyanshuju_yuanli as shiyanshujuYuanli
+        ,a.shiyanshuju_yiqi as shiyanshujuYiqi
+        ,a.shiyanshuju_buzou as shiyanshujuBuzou
+        ,a.shiyanshuju_content as shiyanshujuContent
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ShiyanshujuView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,shiyanpaike.shiyanpaike_name as shiyanpaikeName
+        ,shiyanpaike.shiyanpaike_types as shiyanpaikeTypes
+        ,shiyanpaike.shiyanpaike_time as shiyanpaikeTime
+        ,shiyanpaike.jiaoshi_id as jiaoshiId
+        ,shiyanpaike.banji_types as banjiTypes
+        ,shiyanpaike.shiyanpaike_fenzu as shiyanpaikeFenzu
+
+        FROM shiyanshuju  a
+        left JOIN shiyanpaike shiyanpaike ON a.shiyanpaike_id = shiyanpaike.id
+
+        <where>
+            <if test="params.shiyanpaikeId != null">
+                and a.shiyanpaike_id = #{params.shiyanpaikeId}
+            </if>
+            <if test=" params.shiyanshujuYuanli != '' and params.shiyanshujuYuanli != null and params.shiyanshujuYuanli != 'null' ">
+                and a.shiyanshuju_yuanli like CONCAT('%',#{params.shiyanshujuYuanli},'%')
+            </if>
+            <if test=" params.shiyanshujuYiqi != '' and params.shiyanshujuYiqi != null and params.shiyanshujuYiqi != 'null' ">
+                and a.shiyanshuju_yiqi like CONCAT('%',#{params.shiyanshujuYiqi},'%')
+            </if>
+            <if test=" params.shiyanshujuBuzou != '' and params.shiyanshujuBuzou != null and params.shiyanshujuBuzou != 'null' ">
+                and a.shiyanshuju_buzou like CONCAT('%',#{params.shiyanshujuBuzou},'%')
+            </if>
+            <if test=" params.shiyanshujuContent != '' and params.shiyanshujuContent != null and params.shiyanshujuContent != 'null' ">
+                and a.shiyanshuju_content like CONCAT('%',#{params.shiyanshujuContent},'%')
+            </if>
+
+            <if test=" params.shiyanpaikeName != '' and params.shiyanpaikeName != null and params.shiyanpaikeName != 'null' ">
+                and shiyanpaike.shiyanpaike_name like CONCAT('%',#{params.shiyanpaikeName},'%')
+            </if>
+            <if test="params.shiyanpaikeTypes != null">
+                and shiyanpaike.shiyanpaike_types = #{params.shiyanpaikeTypes}
+            </if>
+
+            <if test=" params.shiyanpaikeTimeStart != '' and params.shiyanpaikeTimeStart != null ">
+                <![CDATA[  and DATE_FORMAT(shiyanpaike.shiyanpaike_time, '%Y-%m-%d %H:%T:%s') >=
+                DATE_FORMAT(#{params.shiyanpaikeTimeStart}, '%Y-%m-%d %H:%T:%s')   ]]>
+            </if>
+            <if test=" params.shiyanpaikeTimeEnd != '' and params.shiyanpaikeTimeEnd != null ">
+                <![CDATA[  and DATE_FORMAT(shiyanpaike.shiyanpaike_time, '%Y-%m-%d %H:%T:%s') <=
+                DATE_FORMAT(#{params.shiyanpaikeTimeEnd} , '%Y-%m-%d %H:%T:%s')    ]]>
+            </if>
+            <if test="params.jiaoshiId != null">
+                and shiyanpaike.jiaoshi_id = #{params.jiaoshiId}
+            </if>
+            <if test="params.banjiTypes != null">
+                and shiyanpaike.banji_types = #{params.banjiTypes}
+            </if>
+
+            <if test=" params.shiyanpaikeFenzu != '' and params.shiyanpaikeFenzu != null and params.shiyanpaikeFenzu != 'null' ">
+                and shiyanpaike.shiyanpaike_fenzu like CONCAT('%',#{params.shiyanpaikeFenzu},'%')
+            </if>
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>

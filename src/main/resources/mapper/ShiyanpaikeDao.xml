@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ShiyanpaikeDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.shiyanpaike_name as shiyanpaikeName
+        ,a.shiyanpaike_types as shiyanpaikeTypes
+        ,a.shiyanpaike_time as shiyanpaikeTime
+        ,a.jiaoshi_id as jiaoshiId
+        ,a.banji_types as banjiTypes
+        ,a.shiyanpaike_fenzu as shiyanpaikeFenzu
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ShiyanpaikeView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,jiaoshi.jiaoshi_name as jiaoshiName
+        ,jiaoshi.sex_types as sexTypes
+        ,jiaoshi.jiaoshi_id_number as jiaoshiIdNumber
+        ,jiaoshi.jiaoshi_phone as jiaoshiPhone
+        ,jiaoshi.jiaoshi_photo as jiaoshiPhoto
+
+        FROM shiyanpaike  a
+        left JOIN jiaoshi jiaoshi ON a.jiaoshi_id = jiaoshi.id
+
+        <where>
+            <if test=" params.shiyanpaikeName != '' and params.shiyanpaikeName != null and params.shiyanpaikeName != 'null' ">
+                and a.shiyanpaike_name like CONCAT('%',#{params.shiyanpaikeName},'%')
+            </if>
+            <if test="params.shiyanpaikeTypes != null">
+                and a.shiyanpaike_types = #{params.shiyanpaikeTypes}
+            </if>
+            <if test=" params.shiyanpaikeTimeStart != '' and params.shiyanpaikeTimeStart != null ">
+                <![CDATA[  and DATE_FORMAT(a.shiyanpaike_time, '%Y-%m-%d %H:%T:%s') >=
+                DATE_FORMAT(#{params.shiyanpaikeTimeStart}, '%Y-%m-%d %H:%T:%s')   ]]>
+            </if>
+            <if test=" params.shiyanpaikeTimeEnd != '' and params.shiyanpaikeTimeEnd != null ">
+                <![CDATA[  and DATE_FORMAT(a.shiyanpaike_time, '%Y-%m-%d %H:%T:%s') <=
+                DATE_FORMAT(#{params.shiyanpaikeTimeEnd} , '%Y-%m-%d %H:%T:%s')    ]]>
+            </if>
+            <if test="params.jiaoshiId != null">
+                and a.jiaoshi_id = #{params.jiaoshiId}
+            </if>
+            <if test="params.banjiTypes != null">
+                and a.banji_types = #{params.banjiTypes}
+            </if>
+            <if test=" params.shiyanpaikeFenzu != '' and params.shiyanpaikeFenzu != null and params.shiyanpaikeFenzu != 'null' ">
+                and a.shiyanpaike_fenzu like CONCAT('%',#{params.shiyanpaikeFenzu},'%')
+            </if>
+
+            <if test=" params.jiaoshiName != '' and params.jiaoshiName != null and params.jiaoshiName != 'null' ">
+                and jiaoshi.jiaoshi_name like CONCAT('%',#{params.jiaoshiName},'%')
+            </if>
+            <if test="params.sexTypes != null">
+                and jiaoshi.sex_types = #{params.sexTypes}
+            </if>
+
+            <if test=" params.jiaoshiIdNumber != '' and params.jiaoshiIdNumber != null and params.jiaoshiIdNumber != 'null' ">
+                and jiaoshi.jiaoshi_id_number like CONCAT('%',#{params.jiaoshiIdNumber},'%')
+            </if>
+            <if test=" params.jiaoshiPhone != '' and params.jiaoshiPhone != null and params.jiaoshiPhone != 'null' ">
+                and jiaoshi.jiaoshi_phone like CONCAT('%',#{params.jiaoshiPhone},'%')
+            </if>
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>
